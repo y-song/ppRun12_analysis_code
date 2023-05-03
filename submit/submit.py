@@ -36,7 +36,7 @@ def main(args):
   
   file_list = []
   
-  with open('data_file.list', 'r') as data_file_list:
+  with open('raw_data.list', 'r') as data_file_list:
     for data_file in data_file_list:
 	file_list.append(data_file.strip())
 

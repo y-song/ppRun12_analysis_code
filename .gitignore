@@ -1,12 +1,13 @@
 Combined*list
+pp200Y12*list
+raw_data.list
+geant.list
 *.d
 *.so
 *.pcm
 bin/
 log/
 Results/*
-pp200Y12*list
-raw_data.list
 raw_data/
 run12data.package/
 run12data.zip

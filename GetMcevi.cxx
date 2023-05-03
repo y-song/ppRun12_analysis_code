@@ -55,14 +55,17 @@ public:
     double m;
     int n;
     int nch;
-    double q;
+    double q0;
+    double q2;
     double rg;
     double zg;
     double mg;
     int evid;
     double weight;
+    int b;
+    double dr;
 
-    RootResultStruct(TStarJetVectorJet orig, double pt, double eta, double y, double phi, double m, int n, int nch, double q, double rg, double zg, double mg, int evid, double weight) : orig(orig), pt(pt), eta(eta), y(y), phi(phi), m(m), n(n), nch(nch), q(q), rg(rg), zg(zg), mg(mg), evid(evid), weight(weight){};
+    RootResultStruct(TStarJetVectorJet orig, double pt, double eta, double y, double phi, double m, int n, int nch, double q0, double q2, double rg, double zg, double mg, int evid, double weight, int b, double dr) : orig(orig), pt(pt), eta(eta), y(y), phi(phi), m(m), n(n), nch(nch), q0(q0), q2(q2), rg(rg), zg(zg), mg(mg), evid(evid), weight(weight), b(b), dr(dr){};
     ClassDef(RootResultStruct, 1)
 };
 
