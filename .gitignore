@@ -1,0 +1,14 @@
+Combined*list
+*.d
+*.so
+*.pcm
+bin/
+log/
+pp200Y12_badrun*list
+raw_data.list
+raw_data/
+run12data.package/
+run12data.zip
+src/obj/
+star_star.simg
+trash/*
