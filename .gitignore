@@ -4,11 +4,14 @@ Combined*list
 *.pcm
 bin/
 log/
-pp200Y12_badrun*list
+Results/*
+pp200Y12*list
 raw_data.list
 raw_data/
 run12data.package/
 run12data.zip
 src/obj/
+src/0819/
+submit/scheduler/
 star_star.simg
 trash/*
