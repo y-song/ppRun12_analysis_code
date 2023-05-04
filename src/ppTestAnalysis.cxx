@@ -346,7 +346,7 @@ ppTestAnalysis::ppTestAnalysis(const int argc, const char **const argv)
   }
   if (pars.intype == INPICO)
   {
-    select_jet = select_jet_eta * select_jet_pt * select_jet_m;
+    select_jet = select_jet_eta * select_jet_pt;// * select_jet_m;
   }
 
   // Repeat on subjets?
@@ -639,7 +639,7 @@ EVENTRESULT ppTestAnalysis::RunEvent()
     double epair = -9.0;
     double z = -9.0;
     int pid1 = -9999;
-    int pid2 = -999;
+    int pid2 = -9999;
     double pt1 = -9;
     double pt2 = -9;
 
