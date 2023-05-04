@@ -5,6 +5,7 @@ geant.list
 *.d
 *.so
 *.pcm
+*.xml
 bin/
 log/
 Results/
