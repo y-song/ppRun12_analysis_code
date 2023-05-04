@@ -20,10 +20,10 @@ void pid_check()
 
     for (int ibin = 0; ibin < nbin; ibin++)
     {
-        partpid.Add(new TH1F(Form("%0.1f<pT<%0.1f GeV", pt_bin[ibin], pt_bin[ibin + 1]), ";fraction;particle PID", 6000, -3000, 3000));
+        partpid.Add(new TH1F(Form("%0.1f<pT<%0.1f GeV", pt_bin[ibin], pt_bin[ibin + 1]), ";particle PID;fraction", 2500, 0, 2500));
     }
 
-    TFile *f = new TFile("pythia.root");
+    TFile *f = new TFile("Results/pythia/pythia.root");
     TTree *t = (TTree *)f->Get("ResultTree");
 
     Double_t weight;
@@ -48,28 +48,30 @@ void pid_check()
         t->GetEntry(iev);
         for (int ijet = 0; ijet < njets; ijet++)
         {
-            if (b[ijet] == 0)
+            if (b[ijet] == 0 || b[ijet] == -9)
                 continue;
-            if (pt_bin[ibin] < pt1[ijet] && pt1[ijet] < pt_bin[ibin + 1])
+            for (int ibin = 0; ibin < nbin; ibin++)
             {
-                ((TH1F *)partpid.At(ibin))->Fill(pid1[ijet], weight);
+                if (pt_bin[ibin] < pt1[ijet] && pt1[ijet] < pt_bin[ibin + 1])
+                {
+                    ((TH1F *)partpid.At(ibin))->Fill(abs(pid1[ijet]), weight);
+                }
+                if (pt_bin[ibin] < pt2[ijet] && pt2[ijet] < pt_bin[ibin + 1])
+                {
+                    ((TH1F *)partpid.At(ibin))->Fill(abs(pid2[ijet]), weight);
+                }
             }
-            if (pt_bin[ibin] < pt2[ijet] && pt2[ijet] < pt_bin[ibin + 1])
-            {
-                ((TH1F *)partpid.At(ibin))->Fill(pid2[ijet], weight);
-            }
-        }    
+        }
     }
 
     TCanvas *c = new TCanvas("c", "c");
     for (int ibin = 0; ibin < nbin; ibin++)
     {
         auto dist = ((TH1F *)partpid.At(ibin));
-        Double_t integral = dist->GetEntries();
-        dist->Scale(1./integral);
+        Double_t integral = dist->Integral();
+        dist->Scale(1. / integral);
         dist->Draw();
         dist->GetYaxis()->SetRangeUser(0., 1.);
         c->SaveAs(Form("plots/pid_%0.1f_pT_%0.1f.png", pt_bin[ibin], pt_bin[ibin + 1]), "png");
     }
-
 }
