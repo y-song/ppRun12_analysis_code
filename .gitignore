@@ -7,8 +7,9 @@ geant.list
 *.pcm
 bin/
 log/
-Results/*
+Results/
 raw_data/
+plots/
 run12data.package/
 run12data.zip
 src/obj/
