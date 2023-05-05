@@ -1,8 +1,8 @@
 void rc()
 {
     // set up log binning
-    const int nbin = 10;
-    const double t_min = 0.;
+    const int nbin = 12;
+    const double t_min = -1.;
     const double t_max = 4.;
     double t_interval = (t_max - t_min) / nbin;
     double t_bin[nbin + 1] = {};
@@ -69,9 +69,9 @@ void rc()
                 continue;
             if (pt2[ijet] < 0) // track pT cut
                 continue;
-            // if (abs(pid1[ijet]*pid2[ijet]) != 44521) // pair PID check
-            //     continue;
-            Double_t tau = 1 / (2 * epair[ijet] * z[ijet] * (1 - z[ijet]) * (1 - cos(dr[ijet])));
+            //if (abs(pid1[ijet]*pid2[ijet]) != 44521) // pair PID check: 44521, 103041, 4892944
+            //    continue;
+            Double_t tau = 2*(1-z[ijet]) / (z[ijet]*epair[ijet]*pow(dr[ijet],2)); //1 / (2 * epair[ijet] * z[ijet] * (1 - z[ijet]) * (1 - cos(dr[ijet])));
 
             int i_pt_bin = h_pt->FindFixBin(pt[ijet]);
             int i_t_bin = h_t->FindFixBin(tau);
@@ -101,7 +101,7 @@ void rc()
             rc_err[i_pt_bin][ibin] = 2 * sqrt(nss[i_pt_bin][ibin] * nos[i_pt_bin][ibin] / (pow((nss[i_pt_bin][ibin] + nos[i_pt_bin][ibin]), 2) * n_unweighted[i_pt_bin][ibin]));
             cout << rc[i_pt_bin][ibin] << endl;
         }
-        cout << "\n" << endl;
+        //cout << "\n" << endl;
     }
 
     auto g0 = new TGraphErrors(nbin, tau, rc[0], tau_err, rc_err[0]);

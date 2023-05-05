@@ -70,7 +70,7 @@ void rc_vs_mult_vs_t()
                 continue;
             //if (abs(pid1[ijet]*pid2[ijet]) != 4892944) // pair PID check: 44521, 103041, 4892944
             //    continue;
-            Double_t tau = 1 / (2 * epair[ijet] * z[ijet] * (1 - z[ijet]) * (1 - cos(dr[ijet])));
+            Double_t tau = 2*(1-z[ijet]) / (z[ijet]*epair[ijet]*pow(dr[ijet],2)); //1 / (2 * epair[ijet] * z[ijet] * (1 - z[ijet]) * (1 - cos(dr[ijet])));
 
             int i_mult_bin = h_mult->FindFixBin(n[ijet]*1.0);
             int i_t_bin = h_t->FindFixBin(tau);
