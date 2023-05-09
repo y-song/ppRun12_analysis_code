@@ -29,7 +29,7 @@ void rc_vs_mult()
     t->SetBranchAddress("njets", &njets);
 
     Double_t pt[100], pt2[100], epair[100], z[100], dr[100];
-    Int_t b[100], nch[100], pid1[100], pid2[100];
+    Int_t b[100], n[100], pid1[100], pid2[100];
     t->SetBranchAddress("pt", pt);
     t->SetBranchAddress("pt2", pt2);
     t->SetBranchAddress("pid1", pid1);
@@ -38,13 +38,13 @@ void rc_vs_mult()
     t->SetBranchAddress("epair", epair);
     t->SetBranchAddress("z", z);
     t->SetBranchAddress("dr", dr);
-    t->SetBranchAddress("nch", nch);
+    t->SetBranchAddress("n", n);
 
     int nev = t->GetEntries();
     cout << "number of events: " << nev << endl;
 
-    double mult[nbin] = {};
-    double mult_err[nbin] = {};
+    double x[nbin] = {};
+    double x_err[nbin] = {};
     double rc[n_pt_bin][nbin] = {};
     double rc_err[n_pt_bin][nbin];
     double nss[n_pt_bin][nbin] = {};
@@ -66,37 +66,37 @@ void rc_vs_mult()
             //    continue;
 
             int i_pt_bin = h_pt->FindFixBin(pt[ijet]);            
-            int i_mult_bin = nch[ijet] - 2;
+            int i_mult_bin = n[ijet] - 2;
 
             if (i_pt_bin == 0 || i_pt_bin > n_pt_bin + 1)
             {
                 cout << i_pt_bin << ", " << pt[ijet] << endl;
                 break;
             }
-            if (i_mult_bin == 0 || i_mult_bin == nbin + 1)
+            if (i_mult_bin < 0 || i_mult_bin >= nbin + 1)
                 continue;
             if (b[ijet] == 1)
-                nss[i_pt_bin - 1][i_mult_bin - 1] += weight;
+                nss[i_pt_bin - 1][i_mult_bin] += weight;
             else
-                nos[i_pt_bin - 1][i_mult_bin - 1] += weight;
-            n_unweighted[i_pt_bin - 1][i_mult_bin - 1] += 1;
+                nos[i_pt_bin - 1][i_mult_bin] += weight;
+            n_unweighted[i_pt_bin - 1][i_mult_bin] += 1;
         }
     }
 
     for (int ibin = 0; ibin < nbin; ibin++)
     {
-        mult[ibin] = h_mult->GetBinCenter(ibin + 1);
-        mult_err[ibin] = 0;
+        x[ibin] = h_mult->GetBinCenter(ibin + 1);
+        x_err[ibin] = 0;
         for (int i_pt_bin = 0; i_pt_bin < n_pt_bin; i_pt_bin++)
         {
             rc[i_pt_bin][ibin] = (nss[i_pt_bin][ibin] - nos[i_pt_bin][ibin]) / (nss[i_pt_bin][ibin] + nos[i_pt_bin][ibin]);
             rc_err[i_pt_bin][ibin] = 2 * sqrt(nss[i_pt_bin][ibin] * nos[i_pt_bin][ibin] / (pow((nss[i_pt_bin][ibin] + nos[i_pt_bin][ibin]), 2) * n_unweighted[i_pt_bin][ibin]));
-            cout << rc[i_pt_bin][ibin] << endl;
+            //cout << rc[i_pt_bin][ibin] << endl;
         }
         //cout << "\n" << endl;
     }
 
-    auto g0 = new TGraphErrors(nbin, mult, rc[0], mult_err, rc_err[0]);
+    auto g0 = new TGraphErrors(nbin, x, rc[0], x_err, rc_err[0]);
     
     TCanvas *c = new TCanvas("c", "c");
     
@@ -105,10 +105,10 @@ void rc_vs_mult()
     h_t->Draw();*/
 
     g0->Draw();
-    g0->GetXaxis()->SetTitle("charged particle multiplicity in jet");
+    g0->GetXaxis()->SetTitle("particle multiplicity in jet");
     g0->GetYaxis()->SetTitle("r_{c}");
     g0->GetYaxis()->SetRangeUser(-1., 0.1);
-    g0->SetTitle("r_{c} vs charged particle multiplicity in jet");
+    g0->SetTitle("r_{c} vs particle multiplicity in jet");
 
-    c->SaveAs("plots/pythia_rc_vs_chmult.png", "png");
+    c->SaveAs("plots/pythia_rc_vs_mult.png", "png");
 }
