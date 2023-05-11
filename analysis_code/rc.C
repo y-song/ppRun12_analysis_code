@@ -3,8 +3,8 @@ void rc()
     // set up log binning
     // x axis = t
     const int nbin = 10;
-    const double t_min = -1.;
-    const double t_max = 4.;
+    const double t_min = 0.;
+    const double t_max = 3.;
     double t_interval = (t_max - t_min) / nbin;
     double t_bin[nbin + 1] = {};
     for (int ibin = 0; ibin < nbin + 1; ibin++)
@@ -15,11 +15,11 @@ void rc()
     /* x axis = mult
     const int nbin = 10; */
 
-    const int n_pt_bin = 3;
+    const int n_pt_bin = 1;
     const double pt_min = 10.;
     const double pt_max = 30.;
     //double pt_interval = (pt_max - pt_min) / n_pt_bin;
-    double pt_bin[n_pt_bin + 1] = {10, 15, 20, 30};
+    double pt_bin[n_pt_bin + 1] = {10, 30};//15, 20, 30};
     /*for (int ibin = 0; ibin < n_pt_bin + 1; ibin++)
     {
         pt_bin[ibin] = pt_min + ibin * pt_interval;
@@ -33,7 +33,7 @@ void rc()
     // TH1I *h_mult = new TH1I("h_mult", ";jet multiplicity", nbin, 2, 12);
     TH1F *h_t = new TH1F("h_t", ";t [GeV^{-1}]", nbin, t_bin);
     TH1F *h_pt = new TH1F("h_pt", ";p_{T} [GeV]", n_pt_bin, pt_bin);
-    TFile *f = new TFile("Results/pythia/pythia_pid.root");
+    TFile *f = new TFile("Results/geant/geant_pid_new.root");
     TTree *t = (TTree *)f->Get("ResultTree");
 
     Double_t weight;
@@ -42,7 +42,8 @@ void rc()
     t->SetBranchAddress("njets", &njets);
 
     Double_t pt[100], pt2[100], epair[100], z[100], dr[100];
-    Int_t b[100], n[100], pid1[100], pid2[100];
+    Int_t reject[100], b[100], n[100], pid1[100], pid2[100];
+    t->SetBranchAddress("reject", reject);
     t->SetBranchAddress("pt", pt);
     t->SetBranchAddress("pt2", pt2);
     t->SetBranchAddress("pid1", pid1);
@@ -76,11 +77,14 @@ void rc()
                 continue;
             if (pt2[ijet] < 0) // track pT cut
                 continue;
+            if (reject[ijet] == 1)
+                continue;
             //if (abs(pid1[ijet]*pid2[ijet]) != 44521) // pair PID check: 44521, 103041, 4892944
             //    continue;
-            Double_t tau = 2*(1-z[ijet]) / (z[ijet]*epair[ijet]*pow(dr[ijet],2)); //1 / (2 * epair[ijet] * z[ijet] * (1 - z[ijet]) * (1 - cos(dr[ijet])));
+            Double_t tau = 2*z[ijet]*(1-z[ijet])*epair[ijet]/( pow ((1-z[ijet])*epair[ijet]*sin(dr[ijet]), 2) ); // 2*(1-z[ijet]) / (z[ijet]*epair[ijet]*pow(dr[ijet],2)); //1 / (2 * epair[ijet] * z[ijet] * (1 - z[ijet]) * (1 - cos(dr[ijet])));
 
             int i_pt_bin = h_pt->FindFixBin(pt[ijet]);
+            h_pt->Fill(pt[ijet], weight);
 
             // x axis = t: 
             int i_t_bin = h_t->FindFixBin(tau);
@@ -130,6 +134,17 @@ void rc()
         }
     }
 
+    cout << "printing n_unweighted values:" << endl;
+    for (int i_pt_bin = 0; i_pt_bin < n_pt_bin; i_pt_bin++)
+    {
+        for (int ibin = 0; ibin < nbin; ibin++)
+        {
+            cout << n_unweighted[i_pt_bin][ibin] << ", ";
+        }
+        cout << "\n";
+    }
+
+
     cout << "printing r_c values:" << endl;
     for (int i_pt_bin = 0; i_pt_bin < n_pt_bin; i_pt_bin++)
     {
@@ -139,7 +154,7 @@ void rc()
         }
         cout << "\n";
     }
-
+    
     cout << "printing r_c error values:" << endl;
     for (int i_pt_bin = 0; i_pt_bin < n_pt_bin; i_pt_bin++)
     {
@@ -171,12 +186,16 @@ void rc()
     g0->GetXaxis()->SetTitle("t[GeV^{-1}]");
     //g0->GetXaxis()->SetTitle("particle multiplicity in jet");
     g0->GetYaxis()->SetTitle("r_{c}");
-    g0->GetYaxis()->SetRangeUser(-0.4, 0.1);
+    g0->GetYaxis()->SetRangeUser(-0.6, 0.1);
     g0->SetTitle("r_{c} vs t");
     //g0->GetYaxis()->SetRangeUser(-1., 0.1);
     //g0->SetTitle("r_{c} vs charged particle multiplicity in jet");
     g1->SetLineColor(4);
     g2->SetLineColor(2);
 
-    c->SaveAs("plots/pythia_rc_vs_mult_vs_pt.png", "png");
+    c->SaveAs("plots/geant_rc_vs_t.png", "png");
+
+    /*c->SetLogx(0);
+    h_pt->Draw();
+    c->SaveAs("plots/geant_pt_check.png", "png");*/
 }
