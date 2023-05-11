@@ -2,9 +2,9 @@ Combined*list
 pp200Y12*list
 raw_data.list
 geant.list
-*.d
-*.so
-*.pcm
+*/*.d
+*/*.so
+*/*.pcm
 *.xml
 bin/
 log/
