@@ -9,7 +9,7 @@ void pid_pair_check()
     TH1F *h_pid_index_pair = new TH1F("h_pid_index_pair", ";pair PID product index", 16, -9, 7);
     TH1F *h_pid_absindex_pair = new TH1F("h_pid_absindex_pair", ";pair PID product index absolute value", 9, 0, 10);
 
-    TFile *f = new TFile("Results/pythia/pythia_pid.root");
+    TFile *f = new TFile("Results/pythia/pythia_pid_new.root");
     TTree *t = (TTree *)f->Get("ResultTree");
 
     Double_t weight;
@@ -34,13 +34,17 @@ void pid_pair_check()
         t->GetEntry(iev);
         for (int ijet = 0; ijet < njets; ijet++)
         {
-            if (pt[ijet] < 15) // jet pT cut
+            if (pt[ijet] < 10) // jet pT cut
                 continue;
             if (b[ijet] == 0 || b[ijet] == -9)
                 continue;
-            if (pt2[ijet] < 2) // track pT cut
+            if (pt2[ijet] < 0.2) // track pT cut
                 continue;
-
+            if (pt2[ijet] > pt1[ijet])
+            {
+                cout << "subleading track has higher pT than leading!" << endl;
+                break;
+            }
             int pid_product = pid1[ijet] * pid2[ijet];
             switch (pid_product)
             {
@@ -125,6 +129,6 @@ void pid_pair_check()
     h_pid_absindex_pair->GetXaxis()->SetBinLabel(6, "Kp");
     h_pid_absindex_pair->GetXaxis()->SetBinLabel(9, "other");
 
-    c->SaveAs("plots/leading_subleading_pid_pttrack2_ptjet15.png", "png");
+    c->SaveAs("plots/leading_subleading_pid.png", "png");
 
 }
