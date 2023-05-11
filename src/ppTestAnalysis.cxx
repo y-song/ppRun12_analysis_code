@@ -628,7 +628,7 @@ EVENTRESULT ppTestAnalysis::RunEvent()
   {
     PseudoJet &CurrentJet = JAResult[ijet];
     PseudoJet &SDJet = sdjets[ijet];
-    vector<PseudoJet> IncPart = CurrentJet.constituents();
+    vector<PseudoJet> IncPart = sorted_by_pt(CurrentJet.constituents());
     PseudoJet NeutralPart = join(OnlyNeutral(CurrentJet.constituents()));
     PseudoJet ChargedPart = join(OnlyCharged(CurrentJet.constituents()));
     int nch = ChargedPart.constituents().size();
