@@ -327,139 +327,137 @@ int MatchGeantToPythia(string McFile, string PpFile, string OutFile = "test.root
             continue;
 
         McChain->GetEntry(mcEvi);
-
-        int ppevi = PpChain->GetEntryNumberWithIndex(mcrunid, mceventid);
-        //! Fill results in vectors for easier manipulation
-        //! Also check whether there's something true in the acceptance
         vector<RootResultStruct> mcresult;
+
         for (int j = 0; j < mcnjets; ++j)
         {
             TStarJetVectorJet *mcjet = (TStarJetVectorJet *)McJets->At(j);
 
-            // THE FOLLOWING IS NOT THE DEFAULT
             if (fabs(mcjet->Eta()) < EtaCut)
             {
                 mcresult.push_back(RootResultStruct(*mcjet, mcjet->Pt(), mcjet->Eta(), mcjet->Rapidity(), mcjet->Phi(), mcjet->M(), mcn[j], mcnch[j], mcq0[j], mcq2[j], mcrg[j], mczg[j], mcmg[j], mcb[j], mcdr[j], mcpt1[j], mcpt2[j], mcpid1[j], mcpid2[j], mcz[j], mcepair[j], mceventid, mcweight, mcreject[j], mcEvi, mcmult));
                 nj++;
             }
+        }
 
-            //! Get geant
-            PpChain->GetEntry(ppevi);
-            vector<RootResultStruct> ppresult;
-            for (int j = 0; j < ppnjets; ++j)
+        int ppevi = PpChain->GetEntryNumberWithIndex(mcrunid, mceventid);
+        PpChain->GetEntry(ppevi);
+        vector<RootResultStruct> ppresult;
+
+        for (int j = 0; j < ppnjets; ++j)
+        {
+            TStarJetVectorJet *ppjet = (TStarJetVectorJet *)PpJets->At(j);
+
+            if (rcreject[j] > 0)
             {
-                TStarJetVectorJet *ppjet = (TStarJetVectorJet *)PpJets->At(j);
-
-                if (rcreject[j] > 0)
-                {
-                    cout << "mcevi,ppevi,rerejct[j]=" << mcEvi << ", " << ppevi << ", " << rcreject[j] << endl;
-                }
-                if (fabs(ppjet->Eta()) < EtaCut && ppevi >= 0)
-                {
-                    ppresult.push_back(RootResultStruct(*ppjet, ppjet->Pt(), ppjet->Eta(), ppjet->Rapidity(), ppjet->Phi(), ppjet->M(), rcn[j], rcnch[j], rcq0[j], rcq2[j], rcrg[j], rczg[j], rcmg[j], rcb[j], rcdr[j], rcpt1[j], rcpt2[j], rcpid1[j], rcpid2[j], rcz[j], rcepair[j], ppeventid, ppweight, rcreject[j], mcEvi, rcmult));
-                }
+                cout << "mcevi,ppevi,rcrejct[j]=" << mcEvi << ", " << ppevi << ", " << rcreject[j] << endl;
+                continue;
             }
-
-            //! Sort them together
-            vector<MatchedRootResultStruct> MatchedResult;
-            if (mcresult.size() > 0)
+            if (fabs(ppjet->Eta()) < EtaCut && ppevi >= 0)
             {
-                for (vector<RootResultStruct>::iterator mcit = mcresult.begin(); mcit != mcresult.end();)
+                ppresult.push_back(RootResultStruct(*ppjet, ppjet->Pt(), ppjet->Eta(), ppjet->Rapidity(), ppjet->Phi(), ppjet->M(), rcn[j], rcnch[j], rcq0[j], rcq2[j], rcrg[j], rczg[j], rcmg[j], rcb[j], rcdr[j], rcpt1[j], rcpt2[j], rcpid1[j], rcpid2[j], rcz[j], rcepair[j], ppeventid, ppweight, rcreject[j], mcEvi, rcmult));
+            }
+        }
+
+        //! Sort them together
+        vector<MatchedRootResultStruct> MatchedResult;
+        if (mcresult.size() > 0)
+        {
+            for (vector<RootResultStruct>::iterator mcit = mcresult.begin(); mcit != mcresult.end();)
+            {
+                bool matched = false;
+                if (ppresult.size() > 0)
                 {
-                    bool matched = false;
-                    if (ppresult.size() > 0)
+                    for (vector<RootResultStruct>::iterator ppit = ppresult.begin(); ppit != ppresult.end();)
                     {
-                        for (vector<RootResultStruct>::iterator ppit = ppresult.begin(); ppit != ppresult.end();)
+                        Double_t deta = mcit->y - ppit->y;
+                        Double_t dphi = TVector2::Phi_mpi_pi(mcit->phi - ppit->phi);
+                        Double_t dr = TMath::Sqrt(deta * deta + dphi * dphi);
+                        if (dr < RCut)
                         {
-                            Double_t deta = mcit->y - ppit->y;
-                            Double_t dphi = TVector2::Phi_mpi_pi(mcit->phi - ppit->phi);
-                            Double_t dr = TMath::Sqrt(deta * deta + dphi * dphi);
-                            if (dr < RCut)
-                            {
-                                MatchedResult.push_back(MatchedRootResultStruct(*mcit, *ppit));
-                                ppit = ppresult.erase(ppit);
-                                matched = true;
-                                break;
-                            }
-                            else
-                            {
-                                ++ppit;
-                            }
+                            MatchedResult.push_back(MatchedRootResultStruct(*mcit, *ppit));
+                            ppit = ppresult.erase(ppit);
+                            matched = true;
+                            break;
+                        }
+                        else
+                        {
+                            ++ppit;
                         }
                     }
-                    if (matched)
-                    {
-                        mcit = mcresult.erase(mcit);
-                    }
-                    else
-                    {
-                        MatchedResult.push_back(MatchedRootResultStruct(*mcit, RootResultStruct(*dummyjet, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, ppeventid, ppweight, -9, mcEvi, rcmult)));
-                        ++mcit;
-                    }
                 }
-            }
-            for (vector<RootResultStruct>::iterator ppit = ppresult.begin(); ppit != ppresult.end();)
-            {
-                MatchedResult.push_back(MatchedRootResultStruct(RootResultStruct(*dummyjet, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, mceventid, mcweight, -9, mcEvi, mcmult), *ppit));
-                ++ppit;
-            }
-            for (vector<MatchedRootResultStruct>::iterator res = MatchedResult.begin(); res != MatchedResult.end(); ++res)
-            {
-                pt = res->first.pt;
-                pts = res->second.pt;
-                m = res->first.m;
-                ms = res->second.m;
-                n = res->first.n;
-                ns = res->second.n;
-                nch = res->first.nch;
-                nchs = res->second.nch;
-                q0 = res->first.q0;
-                q0s = res->second.q0;
-                q2 = res->first.q2;
-                q2s = res->second.q2;
-                b = res->first.b;
-                bs = res->second.b;
-                dr = res->first.dr;
-                drs = res->second.dr;
-                rg = res->first.rg;
-                rgs = res->second.rg;
-                zg = res->first.zg;
-                zgs = res->second.zg;
-                mg = res->first.mg;
-                mgs = res->second.mg;
-                evid = res->first.evid;
-                evids = res->second.evid;
-                w = res->first.weight;
-                ws = res->second.weight;
-                reject = res->first.reject;
-                rejects = res->second.reject;
-                mult = res->first.mult;
-                mults = res->second.mult;
-                pt1 = res->first.pt1;
-                pt1s = res->second.pt1;
-                pt2 = res->first.pt2;
-                pt2s = res->second.pt2;
-                pid1 = res->first.pid1;
-                pid1s = res->second.pid1;
-                pid2 = res->first.pid2;
-                pid2s = res->second.pid2;
-                z = res->first.z;
-                zs = res->second.z;
-                epair = res->first.epair;
-                epairs = res->second.epair;
-
-                if (res->second.mcevi > res->first.mcevi)
+                if (matched)
                 {
-                    mcevi = res->second.mcevi;
+                    mcit = mcresult.erase(mcit);
                 }
                 else
                 {
-                    mcevi = res->first.mcevi;
+                    MatchedResult.push_back(MatchedRootResultStruct(*mcit, RootResultStruct(*dummyjet, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, ppeventid, ppweight, -9, mcEvi, rcmult)));
+                    ++mcit;
                 }
-                MatchedTree->Fill();
             }
         }
+        for (vector<RootResultStruct>::iterator ppit = ppresult.begin(); ppit != ppresult.end();)
+        {
+            MatchedResult.push_back(MatchedRootResultStruct(RootResultStruct(*dummyjet, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, mceventid, mcweight, -9, mcEvi, mcmult), *ppit));
+            ++ppit;
+        }
+        for (vector<MatchedRootResultStruct>::iterator res = MatchedResult.begin(); res != MatchedResult.end(); ++res)
+        {
+            pt = res->first.pt;
+            pts = res->second.pt;
+            m = res->first.m;
+            ms = res->second.m;
+            n = res->first.n;
+            ns = res->second.n;
+            nch = res->first.nch;
+            nchs = res->second.nch;
+            q0 = res->first.q0;
+            q0s = res->second.q0;
+            q2 = res->first.q2;
+            q2s = res->second.q2;
+            b = res->first.b;
+            bs = res->second.b;
+            dr = res->first.dr;
+            drs = res->second.dr;
+            rg = res->first.rg;
+            rgs = res->second.rg;
+            zg = res->first.zg;
+            zgs = res->second.zg;
+            mg = res->first.mg;
+            mgs = res->second.mg;
+            evid = res->first.evid;
+            evids = res->second.evid;
+            w = res->first.weight;
+            ws = res->second.weight;
+            reject = res->first.reject;
+            rejects = res->second.reject;
+            mult = res->first.mult;
+            mults = res->second.mult;
+            pt1 = res->first.pt1;
+            pt1s = res->second.pt1;
+            pt2 = res->first.pt2;
+            pt2s = res->second.pt2;
+            pid1 = res->first.pid1;
+            pid1s = res->second.pid1;
+            pid2 = res->first.pid2;
+            pid2s = res->second.pid2;
+            z = res->first.z;
+            zs = res->second.z;
+            epair = res->first.epair;
+            epairs = res->second.epair;
+
+            if (res->second.mcevi > res->first.mcevi)
+            {
+                mcevi = res->second.mcevi;
+            }
+            else
+            {
+                mcevi = res->first.mcevi;
+            }
+            MatchedTree->Fill();
+        }
     }
-    fout->Write();
-    return missed;
+fout->Write();
+return missed;
 }
