@@ -346,7 +346,7 @@ ppTestAnalysis::ppTestAnalysis(const int argc, const char **const argv)
   }
   if (pars.intype == INPICO)
   {
-    select_jet = select_jet_eta * select_jet_pt;// * select_jet_m;
+    select_jet = select_jet_eta * select_jet_pt; // * select_jet_m;
   }
 
   // Repeat on subjets?
@@ -643,31 +643,32 @@ EVENTRESULT ppTestAnalysis::RunEvent()
     double pt1 = -9;
     double pt2 = -9;
 
-    float toweridlead = IncPart.at(0).user_info<JetAnalysisUserInfo>().GetNumber();
-    float toweridsublead = IncPart.at(1).user_info<JetAnalysisUserInfo>().GetNumber();
-
-    if (IncPart.size() >= 2 && toweridlead < 0 && toweridsublead < 0) // also require that leading and subleading hadrons are not from towers
+    if (IncPart.size() >= 2)
     {
-      double qlead = IncPart.at(0).user_info<JetAnalysisUserInfo>().GetQuarkCharge();
-      double qsublead = IncPart.at(1).user_info<JetAnalysisUserInfo>().GetQuarkCharge();
-      double elead = IncPart.at(0).e();
-      double esublead = IncPart.at(1).e();
-      pid1 = IncPart.at(0).user_info<JetAnalysisUserInfo>().GetPID();
-      pid2 = IncPart.at(1).user_info<JetAnalysisUserInfo>().GetPID();
-      pt1 = IncPart.at(0).perp();
-      pt2 = IncPart.at(1).perp();
+      float toweridlead = IncPart.at(0).user_info<JetAnalysisUserInfo>().GetNumber();
+      float toweridsublead = IncPart.at(1).user_info<JetAnalysisUserInfo>().GetNumber();
+      if (toweridlead < 0 && toweridsublead < 0) // also require that leading and subleading hadrons are not from towers
+      {
+        double qlead = IncPart.at(0).user_info<JetAnalysisUserInfo>().GetQuarkCharge();
+        double qsublead = IncPart.at(1).user_info<JetAnalysisUserInfo>().GetQuarkCharge();
+        double elead = IncPart.at(0).e();
+        double esublead = IncPart.at(1).e();
+        pid1 = IncPart.at(0).user_info<JetAnalysisUserInfo>().GetPID();
+        pid2 = IncPart.at(1).user_info<JetAnalysisUserInfo>().GetPID();
+        pt1 = IncPart.at(0).perp();
+        pt2 = IncPart.at(1).perp();
 
-      epair = elead + esublead;
-      z = elead / (elead + esublead);
-      dr = IncPart.at(0).delta_R(IncPart.at(1));
-      if (qlead * qsublead > 0)
-        b = 1;
-      else if (qlead * qsublead < 0)
-        b = -1;
-      else
-        b = 0;
+        epair = elead + esublead;
+        z = elead / (elead + esublead);
+        dr = IncPart.at(0).delta_R(IncPart.at(1));
+        if (qlead * qsublead > 0)
+          b = 1;
+        else if (qlead * qsublead < 0)
+          b = -1;
+        else
+          b = 0;
+      }
     }
-
     // jet charges
     double numerator0 = 0.0;
     double numerator2 = 0.0;
