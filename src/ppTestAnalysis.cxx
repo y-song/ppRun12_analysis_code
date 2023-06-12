@@ -643,7 +643,10 @@ EVENTRESULT ppTestAnalysis::RunEvent()
     double pt1 = -9;
     double pt2 = -9;
 
-    if (IncPart.size() >= 2)
+    float toweridlead = IncPart.at(0).user_info<JetAnalysisUserInfo>().GetNumber();
+    float toweridsublead = IncPart.at(1).user_info<JetAnalysisUserInfo>().GetNumber();
+
+    if (IncPart.size() >= 2 && toweridlead < 0 && toweridsublead < 0) // also require that leading and subleading hadrons are not from towers
     {
       double qlead = IncPart.at(0).user_info<JetAnalysisUserInfo>().GetQuarkCharge();
       double qsublead = IncPart.at(1).user_info<JetAnalysisUserInfo>().GetQuarkCharge();
