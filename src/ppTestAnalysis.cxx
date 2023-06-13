@@ -608,7 +608,6 @@ EVENTRESULT ppTestAnalysis::RunEvent()
 
   if (JAResult.size() == 0)
   {
-    // cout << "Nothing found" << endl;
     return EVENTRESULT::NOJETS;
   }
 
@@ -645,30 +644,39 @@ EVENTRESULT ppTestAnalysis::RunEvent()
 
     if (IncPart.size() >= 2)
     {
-      float toweridlead = IncPart.at(0).user_info<JetAnalysisUserInfo>().GetNumber();
-      float toweridsublead = IncPart.at(1).user_info<JetAnalysisUserInfo>().GetNumber();
-      if (toweridlead < 0 && toweridsublead < 0) // also require that leading and subleading hadrons are not from towers
-      {
-        double qlead = IncPart.at(0).user_info<JetAnalysisUserInfo>().GetQuarkCharge();
-        double qsublead = IncPart.at(1).user_info<JetAnalysisUserInfo>().GetQuarkCharge();
-        double elead = IncPart.at(0).e();
-        double esublead = IncPart.at(1).e();
-        pid1 = IncPart.at(0).user_info<JetAnalysisUserInfo>().GetPID();
-        pid2 = IncPart.at(1).user_info<JetAnalysisUserInfo>().GetPID();
-        pt1 = IncPart.at(0).perp();
-        pt2 = IncPart.at(1).perp();
+      double qlead = IncPart.at(0).user_info<JetAnalysisUserInfo>().GetQuarkCharge();
+      double qsublead = IncPart.at(1).user_info<JetAnalysisUserInfo>().GetQuarkCharge();
+      double elead = IncPart.at(0).e();
+      double esublead = IncPart.at(1).e();
+      pid1 = IncPart.at(0).user_info<JetAnalysisUserInfo>().GetPID();
+      pid2 = IncPart.at(1).user_info<JetAnalysisUserInfo>().GetPID();
+      pt1 = IncPart.at(0).perp();
+      pt2 = IncPart.at(1).perp();
 
-        epair = elead + esublead;
-        z = elead / (elead + esublead);
-        dr = IncPart.at(0).delta_R(IncPart.at(1));
-        if (qlead * qsublead > 0)
-          b = 1;
-        else if (qlead * qsublead < 0)
-          b = -1;
-        else
-          b = 0;
-      }
+      epair = elead + esublead;
+      z = elead / (elead + esublead);
+      dr = IncPart.at(0).delta_R(IncPart.at(1));
+      if (qlead * qsublead > 0)
+        b = 1;
+      else if (qlead * qsublead < 0)
+        b = -1;
+      else
+        b = 0;
     }
+
+    if (b == 1 || b == -1) // check if the two highest E neutrals sum up to larger pt than subleading charged
+    {
+      vector<PseudoJet> NeutralPartVec = sorted_by_E(NeutralPart.constituents());
+      if (NeutralPartVec.size() < 2)
+        continue;
+      if (NeutralPartVec.at(0).delta_R(NeutralPartVec.at(1)) > 0.07)
+        continue;
+      double neutralpt = NeutralPartVec.at(0).e() + NeutralPartVec.at(1).e();
+      if (neutralpt < pt2)
+        continue;
+      b = 0;
+    }
+
     // jet charges
     double numerator0 = 0.0;
     double numerator2 = 0.0;
