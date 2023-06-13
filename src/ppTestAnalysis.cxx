@@ -642,20 +642,21 @@ EVENTRESULT ppTestAnalysis::RunEvent()
     double pt1 = -9;
     double pt2 = -9;
 
-    if (IncPart.size() >= 2)
+    vector<PseudoJet> ChargedPartVec = sorted_by_pt(ChargedPart.constituents());
+    if (ChargedPartVec.size() >= 2)
     {
-      double qlead = IncPart.at(0).user_info<JetAnalysisUserInfo>().GetQuarkCharge();
-      double qsublead = IncPart.at(1).user_info<JetAnalysisUserInfo>().GetQuarkCharge();
-      double elead = IncPart.at(0).e();
-      double esublead = IncPart.at(1).e();
-      pid1 = IncPart.at(0).user_info<JetAnalysisUserInfo>().GetPID();
-      pid2 = IncPart.at(1).user_info<JetAnalysisUserInfo>().GetPID();
-      pt1 = IncPart.at(0).perp();
-      pt2 = IncPart.at(1).perp();
+      double qlead = ChargedPartVec.at(0).user_info<JetAnalysisUserInfo>().GetQuarkCharge();
+      double qsublead = ChargedPartVec.at(1).user_info<JetAnalysisUserInfo>().GetQuarkCharge();
+      double elead = ChargedPartVec.at(0).e();
+      double esublead = ChargedPartVec.at(1).e();
+      pid1 = ChargedPartVec.at(0).user_info<JetAnalysisUserInfo>().GetPID();
+      pid2 = ChargedPartVec.at(1).user_info<JetAnalysisUserInfo>().GetPID();
+      pt1 = ChargedPartVec.at(0).perp();
+      pt2 = ChargedPartVec.at(1).perp();
 
       epair = elead + esublead;
       z = elead / (elead + esublead);
-      dr = IncPart.at(0).delta_R(IncPart.at(1));
+      dr = ChargedPartVec.at(0).delta_R(ChargedPartVec.at(1));
       if (qlead * qsublead > 0)
         b = 1;
       else if (qlead * qsublead < 0)
@@ -677,26 +678,6 @@ EVENTRESULT ppTestAnalysis::RunEvent()
       pttot += part.perp();
     }
 
-    if ((b == 1 || b == -1) && ptne > pt2) // check if the neutrals sum up to larger pt than subleading charged
-    {
-      vector<PseudoJet> NeutralPartVec = sorted_by_pt(NeutralPart.constituents());
-      for (int i = 0; i < NeutralPartVec.size(); i++)
-      {
-        double neutralpt = NeutralPartVec.at(i).Et();
-        for (int j = i + 1; j < NeutralPartVec.size(); j++)
-        {
-          if (NeutralPartVec.at(i).delta_R(NeutralPartVec.at(j)) < 0.15) //0.07
-          {
-            neutralpt += NeutralPartVec.at(j).Et();
-          }
-        }
-        if (neutralpt > pt2)
-        {
-          b = 0;
-        }
-      }
-    }
-
     // jet charges
     double numerator0 = 0.0;
     double numerator2 = 0.0;
@@ -710,8 +691,6 @@ EVENTRESULT ppTestAnalysis::RunEvent()
 
     double q0 = numerator0;
     double q2 = numerator2 / pow(CurrentJet.perp(), 2);
-
-
 
     JetAnalysisUserInfo *userinfo = new JetAnalysisUserInfo(q0);
     // Save neutral energy fraction in multi-purpose field
