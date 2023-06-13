@@ -447,7 +447,7 @@ EVENTRESULT ppTestAnalysis::RunEvent()
     }
     pReader->PrintStatus(10);
 
-    pFullEvent = pReader->GetOutputContainer()->GetArray();
+    pFullEvent = pReader->GetOutputContainer()->GetArray(); //https://github.com/wsu-yale-rhig/TStarJetPicoReader/blob/master/TStarJetPicoReader/TStarJetPicoReaderBase.h#LL24C1-L24C1
 
     header = pReader->GetEvent()->GetHeader();
 
@@ -664,18 +664,35 @@ EVENTRESULT ppTestAnalysis::RunEvent()
         b = 0;
     }
 
-    if (b == 1 || b == -1) // check if the two highest E neutrals sum up to larger pt than subleading charged
+    double ptne = 0.0;
+    double pttot = 0.0;
+
+    for (PseudoJet &n : NeutralPart.constituents())
+    {
+      ptne += n.perp();
+    }
+
+    for (PseudoJet &part : CurrentJet.constituents())
+    {
+      pttot += part.perp();
+    }
+
+    if ((b == 1 || b == -1) && ptne > pt2) // check if the neutrals sum up to larger pt than subleading charged
     {
       vector<PseudoJet> NeutralPartVec = sorted_by_pt(NeutralPart.constituents());
-      if (NeutralPartVec.size() >= 2)
+      for (int i = 0; i < NeutralPartVec.size(); i++)
       {
-        if (NeutralPartVec.at(0).delta_R(NeutralPartVec.at(1)) < 0.07)
+        double neutralpt = NeutralPartVec.at(i).Et();
+        for (int j = i + 1; j < NeutralPartVec.size(); j++)
         {
-          double neutralpt = NeutralPartVec.at(0).Et() + NeutralPartVec.at(1).Et();
-          if (neutralpt > pt2)
+          if (NeutralPartVec.at(i).delta_R(NeutralPartVec.at(j)) < 0.15) //0.07
           {
-            b = 0;
+            neutralpt += NeutralPartVec.at(j).Et();
           }
+        }
+        if (neutralpt > pt2)
+        {
+          b = 0;
         }
       }
     }
@@ -694,18 +711,7 @@ EVENTRESULT ppTestAnalysis::RunEvent()
     double q0 = numerator0;
     double q2 = numerator2 / pow(CurrentJet.perp(), 2);
 
-    double ptne = 0.0;
-    double pttot = 0.0;
 
-    for (PseudoJet &n : NeutralPart.constituents())
-    {
-      ptne += n.perp();
-    }
-
-    for (PseudoJet &part : CurrentJet.constituents())
-    {
-      pttot += part.perp();
-    }
 
     JetAnalysisUserInfo *userinfo = new JetAnalysisUserInfo(q0);
     // Save neutral energy fraction in multi-purpose field
