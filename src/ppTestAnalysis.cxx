@@ -666,15 +666,18 @@ EVENTRESULT ppTestAnalysis::RunEvent()
 
     if (b == 1 || b == -1) // check if the two highest E neutrals sum up to larger pt than subleading charged
     {
-      vector<PseudoJet> NeutralPartVec = sorted_by_E(NeutralPart.constituents());
-      if (NeutralPartVec.size() < 2)
-        continue;
-      if (NeutralPartVec.at(0).delta_R(NeutralPartVec.at(1)) > 0.07)
-        continue;
-      double neutralpt = NeutralPartVec.at(0).e() + NeutralPartVec.at(1).e();
-      if (neutralpt < pt2)
-        continue;
-      b = 0;
+      vector<PseudoJet> NeutralPartVec = sorted_by_pt(NeutralPart.constituents());
+      if (NeutralPartVec.size() >= 2)
+      {
+        if (NeutralPartVec.at(0).delta_R(NeutralPartVec.at(1)) < 0.07)
+        {
+          double neutralpt = NeutralPartVec.at(0).Et() + NeutralPartVec.at(1).Et();
+          if (neutralpt > pt2)
+          {
+            b = 0;
+          }
+        }
+      }
     }
 
     // jet charges
