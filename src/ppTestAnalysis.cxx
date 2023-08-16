@@ -447,7 +447,7 @@ EVENTRESULT ppTestAnalysis::RunEvent()
     }
     pReader->PrintStatus(10);
 
-    pFullEvent = pReader->GetOutputContainer()->GetArray(); //https://github.com/wsu-yale-rhig/TStarJetPicoReader/blob/master/TStarJetPicoReader/TStarJetPicoReaderBase.h#LL24C1-L24C1
+    pFullEvent = pReader->GetOutputContainer()->GetArray(); // https://github.com/wsu-yale-rhig/TStarJetPicoReader/blob/master/TStarJetPicoReader/TStarJetPicoReaderBase.h#LL24C1-L24C1
 
     header = pReader->GetEvent()->GetHeader();
 
@@ -613,8 +613,8 @@ EVENTRESULT ppTestAnalysis::RunEvent()
 
   highw = 0;
   // record event with a jet pT > 2*pTHat upper bound
-  //if ((pars.InputName.Contains("2_3") && JAResult[0].perp() > 6.0) || (pars.InputName.Contains("3_4") && JAResult[0].perp() > 8.0) || (pars.InputName.Contains("4_5") && JAResult[0].perp() > 10.0) || (pars.InputName.Contains("5_7") && JAResult[0].perp() > 14.0) || (pars.InputName.Contains("7_9") && JAResult[0].perp() > 18.0) || (pars.InputName.Contains("9_11") && JAResult[0].perp() > 22.0) || (pars.InputName.Contains("11_15") && JAResult[0].perp() > 30.0) || (pars.InputName.Contains("15_20") && JAResult[0].perp() > 40.0) || (pars.InputName.Contains("20_25") && JAResult[0].perp() > 50.0) || (pars.InputName.Contains("25_35") && JAResult[0].perp() > 70.0) || (pars.InputName.Contains("35_-1") && JAResult[0].perp() > 1000.0))
-  if ((pars.InputName.Contains("hat23_") && JAResult[0].perp() > 6.0) || (pars.InputName.Contains("hat34_") && JAResult[0].perp() > 8.0) || (pars.InputName.Contains("hat45_") && JAResult[0].perp() > 10.0) || (pars.InputName.Contains("hat57_") && JAResult[0].perp() > 14.0) || (pars.InputName.Contains("hat79_") && JAResult[0].perp() > 18.0) || (pars.InputName.Contains("hat911_") && JAResult[0].perp() > 22.0) || (pars.InputName.Contains("hat1115_") && JAResult[0].perp() > 30.0) || (pars.InputName.Contains("hat1520_") && JAResult[0].perp() > 40.0) || (pars.InputName.Contains("hat2025_") && JAResult[0].perp() > 50.0) || (pars.InputName.Contains("hat2535_") && JAResult[0].perp() > 70.0) || (pars.InputName.Contains("hat3545_") && JAResult[0].perp() > 90.0) || (pars.InputName.Contains("hat4555_") && JAResult[0].perp() > 110.0) || (pars.InputName.Contains("hat55999_") && JAResult[0].perp() > 1000.0))
+  if ((pars.InputName.Contains("2_3") && JAResult[0].perp() > 6.0) || (pars.InputName.Contains("3_4") && JAResult[0].perp() > 8.0) || (pars.InputName.Contains("4_5") && JAResult[0].perp() > 10.0) || (pars.InputName.Contains("5_7") && JAResult[0].perp() > 14.0) || (pars.InputName.Contains("7_9") && JAResult[0].perp() > 18.0) || (pars.InputName.Contains("9_11") && JAResult[0].perp() > 22.0) || (pars.InputName.Contains("11_15") && JAResult[0].perp() > 30.0) || (pars.InputName.Contains("15_20") && JAResult[0].perp() > 40.0) || (pars.InputName.Contains("20_25") && JAResult[0].perp() > 50.0) || (pars.InputName.Contains("25_35") && JAResult[0].perp() > 70.0) || (pars.InputName.Contains("35_-1") && JAResult[0].perp() > 1000.0))
+  // if ((pars.InputName.Contains("hat23_") && JAResult[0].perp() > 6.0) || (pars.InputName.Contains("hat34_") && JAResult[0].perp() > 8.0) || (pars.InputName.Contains("hat45_") && JAResult[0].perp() > 10.0) || (pars.InputName.Contains("hat57_") && JAResult[0].perp() > 14.0) || (pars.InputName.Contains("hat79_") && JAResult[0].perp() > 18.0) || (pars.InputName.Contains("hat911_") && JAResult[0].perp() > 22.0) || (pars.InputName.Contains("hat1115_") && JAResult[0].perp() > 30.0) || (pars.InputName.Contains("hat1520_") && JAResult[0].perp() > 40.0) || (pars.InputName.Contains("hat2025_") && JAResult[0].perp() > 50.0) || (pars.InputName.Contains("hat2535_") && JAResult[0].perp() > 70.0) || (pars.InputName.Contains("hat3545_") && JAResult[0].perp() > 90.0) || (pars.InputName.Contains("hat4555_") && JAResult[0].perp() > 110.0) || (pars.InputName.Contains("hat55999_") && JAResult[0].perp() > 1000.0))
   {
     highw = 1;
   }
@@ -649,25 +649,35 @@ EVENTRESULT ppTestAnalysis::RunEvent()
     double phi1 = -9;
     double phi2 = -9;
 
+    vector<int> vec(nch);
+    iota(vec.begin(), vec.end(), 0);
+    random_device rd;
+    mt19937 g(rd());
+    shuffle(vec.begin(), vec.end(), g);    
     vector<PseudoJet> ChargedPartVec = sorted_by_pt(ChargedPart.constituents());
+    
     if (ChargedPartVec.size() >= 2)
     {
-      qlead = ChargedPartVec.at(0).user_info<JetAnalysisUserInfo>().GetQuarkCharge();
-      qsublead = ChargedPartVec.at(1).user_info<JetAnalysisUserInfo>().GetQuarkCharge();
-      double elead = ChargedPartVec.at(0).e();
-      double esublead = ChargedPartVec.at(1).e();
-      pid1 = ChargedPartVec.at(0).user_info<JetAnalysisUserInfo>().GetPID();
-      pid2 = ChargedPartVec.at(1).user_info<JetAnalysisUserInfo>().GetPID();
-      pt1 = ChargedPartVec.at(0).perp();
-      pt2 = ChargedPartVec.at(1).perp();
-      y1 = ChargedPartVec.at(0).rap();
-      y2 = ChargedPartVec.at(1).rap();
-      phi1 = ChargedPartVec.at(0).phi();
-      phi2 = ChargedPartVec.at(1).phi();
+      int leading_index = vec.at(0);
+      int subleading_index = vec.at(1);
+      //cout << leading_index << ", " << subleading_index << endl;
+
+      qlead = ChargedPartVec.at(leading_index).user_info<JetAnalysisUserInfo>().GetQuarkCharge();
+      qsublead = ChargedPartVec.at(subleading_index).user_info<JetAnalysisUserInfo>().GetQuarkCharge();
+      double elead = ChargedPartVec.at(leading_index).e();
+      double esublead = ChargedPartVec.at(subleading_index).e();
+      pid1 = ChargedPartVec.at(leading_index).user_info<JetAnalysisUserInfo>().GetPID();
+      pid2 = ChargedPartVec.at(subleading_index).user_info<JetAnalysisUserInfo>().GetPID();
+      pt1 = ChargedPartVec.at(leading_index).perp();
+      pt2 = ChargedPartVec.at(subleading_index).perp();
+      y1 = ChargedPartVec.at(leading_index).rap();
+      y2 = ChargedPartVec.at(subleading_index).rap();
+      phi1 = ChargedPartVec.at(leading_index).phi();
+      phi2 = ChargedPartVec.at(subleading_index).phi();
 
       epair = elead + esublead;
       z = elead / (elead + esublead);
-      dr = ChargedPartVec.at(0).delta_R(ChargedPartVec.at(1));
+      dr = ChargedPartVec.at(leading_index).delta_R(ChargedPartVec.at(subleading_index));
       if (qlead * qsublead > 0)
         b = 1;
       else if (qlead * qsublead < 0)
@@ -702,28 +712,23 @@ EVENTRESULT ppTestAnalysis::RunEvent()
 
     double q0 = numerator0;
     double q2 = numerator2 / pow(CurrentJet.perp(), 2);
-
-    JetAnalysisUserInfo *userinfo = new JetAnalysisUserInfo(q0);
-    // Save neutral energy fraction in multi-purpose field
-    // userinfo->SetNumber(NeutralPart.pt()  / CurrentJet.pt());
-    userinfo->SetNumber(ptne / pttot);
-    CurrentJet.set_user_info(userinfo);
-
-    if (pars.MaxJetNEF < 1.0 && ptne / pttot > pars.MaxJetNEF)
+    double nef = ptne / pttot;
+    
+    if (pars.MaxJetNEF < 1.0 && nef > pars.MaxJetNEF)
       continue;
 
     // check if the event has high weight
     int reject = 0;
-    //if ((pars.InputName.Contains("2_3") && JAResult[0].perp() > 6.0) || (pars.InputName.Contains("3_4") && JAResult[0].perp() > 8.0) || (pars.InputName.Contains("4_5") && JAResult[0].perp() > 10.0) || (pars.InputName.Contains("5_7") && JAResult[0].perp() > 14.0) || (pars.InputName.Contains("7_9") && JAResult[0].perp() > 18.0) || (pars.InputName.Contains("9_11") && JAResult[0].perp() > 22.0) || (pars.InputName.Contains("11_15") && JAResult[0].perp() > 30.0) || (pars.InputName.Contains("15_20") && JAResult[0].perp() > 40.0) || (pars.InputName.Contains("20_25") && JAResult[0].perp() > 50.0) || (pars.InputName.Contains("25_35") && JAResult[0].perp() > 70.0) || (pars.InputName.Contains("35_-1") && JAResult[0].perp() > 1000.0))
-    if ((pars.InputName.Contains("hat23_") && JAResult[0].perp() > 6.0) || (pars.InputName.Contains("hat34_") && JAResult[0].perp() > 8.0) || (pars.InputName.Contains("hat45_") && JAResult[0].perp() > 10.0) || (pars.InputName.Contains("hat57_") && JAResult[0].perp() > 14.0) || (pars.InputName.Contains("hat79_") && JAResult[0].perp() > 18.0) || (pars.InputName.Contains("hat911_") && JAResult[0].perp() > 22.0) || (pars.InputName.Contains("hat1115_") && JAResult[0].perp() > 30.0) || (pars.InputName.Contains("hat1520_") && JAResult[0].perp() > 40.0) || (pars.InputName.Contains("hat2025_") && JAResult[0].perp() > 50.0) || (pars.InputName.Contains("hat2535_") && JAResult[0].perp() > 70.0) || (pars.InputName.Contains("hat3545_") && JAResult[0].perp() > 90.0) || (pars.InputName.Contains("hat4555_") && JAResult[0].perp() > 110.0) || (pars.InputName.Contains("hat55999_") && JAResult[0].perp() > 1000.0))
-   {
+    if ((pars.InputName.Contains("2_3") && JAResult[0].perp() > 6.0) || (pars.InputName.Contains("3_4") && JAResult[0].perp() > 8.0) || (pars.InputName.Contains("4_5") && JAResult[0].perp() > 10.0) || (pars.InputName.Contains("5_7") && JAResult[0].perp() > 14.0) || (pars.InputName.Contains("7_9") && JAResult[0].perp() > 18.0) || (pars.InputName.Contains("9_11") && JAResult[0].perp() > 22.0) || (pars.InputName.Contains("11_15") && JAResult[0].perp() > 30.0) || (pars.InputName.Contains("15_20") && JAResult[0].perp() > 40.0) || (pars.InputName.Contains("20_25") && JAResult[0].perp() > 50.0) || (pars.InputName.Contains("25_35") && JAResult[0].perp() > 70.0) || (pars.InputName.Contains("35_-1") && JAResult[0].perp() > 1000.0))
+    // if ((pars.InputName.Contains("hat23_") && JAResult[0].perp() > 6.0) || (pars.InputName.Contains("hat34_") && JAResult[0].perp() > 8.0) || (pars.InputName.Contains("hat45_") && JAResult[0].perp() > 10.0) || (pars.InputName.Contains("hat57_") && JAResult[0].perp() > 14.0) || (pars.InputName.Contains("hat79_") && JAResult[0].perp() > 18.0) || (pars.InputName.Contains("hat911_") && JAResult[0].perp() > 22.0) || (pars.InputName.Contains("hat1115_") && JAResult[0].perp() > 30.0) || (pars.InputName.Contains("hat1520_") && JAResult[0].perp() > 40.0) || (pars.InputName.Contains("hat2025_") && JAResult[0].perp() > 50.0) || (pars.InputName.Contains("hat2535_") && JAResult[0].perp() > 70.0) || (pars.InputName.Contains("hat3545_") && JAResult[0].perp() > 90.0) || (pars.InputName.Contains("hat4555_") && JAResult[0].perp() > 110.0) || (pars.InputName.Contains("hat55999_") && JAResult[0].perp() > 1000.0))
+    {
       reject = 1;
     }
     if (abs(vz) > pars.VzCut)
     {
       reject = 2;
     }
-    Result.push_back(ResultStruct(CurrentJet, SDJet, nch, b, dr, q0, q2, epair, z, reject, pid1, pid2, pt1, pt2, qlead, qsublead, y1, y2, phi1, phi2));
+    Result.push_back(ResultStruct(CurrentJet, SDJet, nch, b, dr, q0, q2, epair, z, reject, pid1, pid2, pt1, pt2, qlead, qsublead, y1, y2, phi1, phi2, nef));
   }
   // By default, sort for original jet pt
   sort(Result.begin(), Result.end(), ResultStruct::origptgreater);
@@ -849,133 +854,20 @@ void TurnOffCuts(std::shared_ptr<TStarJetPicoReader> pReader)
 }
 
 //----------------------------------------------------------------------
-double LookupXsec(TString filename)
-{
-  // Some data for geant
-  // -------------------
-  // cross-sections for simulated GEANT data sample
-  // From Renee.
-  // also available via
-  // http://people.physics.tamu.edu/sakuma/star/jets/c101121_event_selection/s0150_mclist_001/web.php
-  // Double_t MinbXsec=28.12;
-  // Double_t Xsec[12];
-  // Xsec[0]=28.11;//2
-  // Xsec[1]=1.287;//3
-  // Xsec[2]=0.3117;//4
-  // Xsec[3]=0.1360;//5
-  // Xsec[4]=0.02305;//7
-  // Xsec[5]=0.005494;//9
-  // Xsec[6]=0.002228;//11
-  // Xsec[7]=0.0003895;//15
-  // Xsec[8]=0.00001016;//25
-  // Xsec[9]=0.0000005010;//35
-  // Xsec[10]=0.0000000283;//45
-  // Xsec[11]=0.000000001443;//55
-
-  static const Double_t MinbXsec = 28.12;
-  // static const Double_t Xsec[12] = {
-  //   28.11,		// 2-3
-  //   1.287,		// 3-4
-  //   0.3117,		// 4-5
-  //   0.1360,		// 5-7
-  //   0.02305,		// 7-9
-  //   0.005494,		// 9-11
-  //   0.002228,		// 11-15
-  //   0.0003895,		// 15-25
-  //   0.00001016,		// 25-35
-  //   0.0000005010,	// 35-45
-  //   0.0000000283,	// 45-55
-  //   0.000000001443	// 55-65
-  // };
-
-  static const Double_t Xsec[12] = {
-      1.0,      // Placeholder for 2-3
-      1.30E+09, // 3-4
-      3.15E+08, // 4-5
-      1.37E+08, // 5-7
-      2.30E+07, // 7-9
-      5.53E+06, // 9-11
-      2.22E+06, // 11-15
-      3.90E+05, // 15-25
-      1.02E+04, // 25-35
-      5.01E+02, // 35-45
-      2.86E+01, // 45-55
-      1.46E+00  // 55-65
-  };
-
-  static const Double_t Nmc[12] = {
-      1,      // 2-3
-      672518, // 3-4
-      672447, // 4-5
-      393498, // 5-7
-      417659, // 7-9
-      412652, // 9-11
-      419030, // 11-15
-      396744, // 15-25
-      399919, // 25-35
-      119995, // 35-45
-      117999, // 45-55
-      119999  // 55-65
-  };
-
-  Double_t w[12];
-  for (int i = 0; i < 12; ++i)
-  {
-    w[i] = Xsec[i] / Nmc[i];
-    // w[i] = Nmc[i] / Xsec[i] ;
-  }
-
-  // static const Double_t w[12] = {
-  //   1,			// Placeholder
-  //   1.90E+03,
-  //   6.30E+02,
-  //   3.43E+02,
-  //   5.49E+01,
-  //   1.33E+01,
-  //   5.30E+00,
-  //   9.81E-01,
-  //   2.56E-02,
-  //   4.56E-03,
-  //   2.43E-04,
-  //   1.20E-05
-  // };
-
-  if (filename.Contains("picoDst_3_4"))
-    return w[1];
-  if (filename.Contains("picoDst_4_5"))
-    return w[2];
-  if (filename.Contains("picoDst_5_7"))
-    return w[3];
-  if (filename.Contains("picoDst_7_9"))
-    return w[4];
-  if (filename.Contains("picoDst_9_11"))
-    return w[5];
-  if (filename.Contains("picoDst_11_15"))
-    return w[6];
-  if (filename.Contains("picoDst_15_25"))
-    return w[7];
-  if (filename.Contains("picoDst_25_35"))
-    return w[8];
-  if (filename.Contains("picoDst_35_45"))
-    return w[9];
-  if (filename.Contains("picoDst_45_55"))
-    return w[10];
-  if (filename.Contains("picoDst_55_65"))
-    return w[11];
-
-  return 1;
-}
-
-//----------------------------------------------------------------------
 double LookupRun12Xsec(TString filename)
 {
 
-  const int NUMBEROFPT = 13;
-  // const char *PTBINS[NUMBEROFPT]={"2_3","3_4","4_5","5_7","7_9","9_11","11_15","15_20","20_25","25_35","35_-1"};
+  /*const int NUMBEROFPT = 13;
   const static float XSEC[NUMBEROFPT] = {9.0012, 1.46253, 0.354566, 0.151622, 0.0249062, 0.00584527, 0.00230158, 0.000342755, 4.57002e-05, 9.72535e-06, 4.69889e-07, 2.69202e-08, 1.43453e-09};
   const static float NUMBEROFEVENT[NUMBEROFPT] = {3e6, 3e6, 3e6, 3e6, 3e6, 3e6, 3e6, 3e6, 3e6, 2e6, 2e6, 1e6, 1e6};
-
   const static vector<string> vptbins = {"pt-hat23_", "pt-hat34_", "pt-hat45_", "pt-hat57_", "pt-hat79_", "pt-hat911_", "pt-hat1115_", "pt-hat1520_", "pt-hat2025_", "pt-hat2535_", "pt-hat3545_", "pt-hat4555_", "pt-hat55999_"};
+  */
+
+  const int NUMBEROFPT = 11;
+  const static float XSEC[NUMBEROFPT] = {9.00581646, 1.461908221, 0.3544350863, 0.1513760388, 0.02488645725, 0.005845846143, 0.002304880181, 0.000342661835, 4.562988397e-05, 9.738041626e-06, 5.019978175e-07};
+  const static float NUMBEROFEVENT[NUMBEROFPT] = {2100295, 600300, 600300, 300289, 300289, 300289, 160295, 100302, 80293, 76303, 23307};
+  const static vector<string> vptbins = {"pp12Pico_pt2_3", "pp12Pico_pt3_4", "pp12Pico_pt4_5", "pp12Pico_pt5_7", "pp12Pico_pt7_9", "pp12Pico_pt9_11", "pp12Pico_pt11_15", "pp12Pico_pt15_20", "pp12Pico_pt20_25", "pp12Pico_pt25_35", "35_-1"};
+
   for (int i = 0; i < vptbins.size(); ++i)
   {
     if (filename.Contains(vptbins.at(i).data()))
