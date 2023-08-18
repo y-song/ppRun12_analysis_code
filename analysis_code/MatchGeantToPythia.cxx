@@ -360,9 +360,10 @@ int MatchGeantToPythia(string McFile, string PpFile, string OutFile = "test.root
 
     // read lists of pythia events to skip
     vector<int> badmcevi_list;
-    FILE *file = fopen("./mcevi_new.list", "r");
+    FILE *file = fopen("./mcevi_new_new.list", "r");
     char file_content[256];
     badmcevi_list.push_back(0);
+    
     while (fgets(file_content, 256, file) != NULL)
     {
         file_content[strcspn(file_content, "\n")] = 0;
@@ -370,13 +371,23 @@ int MatchGeantToPythia(string McFile, string PpFile, string OutFile = "test.root
     }
 
     vector<int> badmcevi_list2;
-    FILE *file2 = fopen("./mcevi2_new.list", "r");
+    FILE *file2 = fopen("./mcevi2_new_new.list", "r");
     char file_content2[256];
     badmcevi_list2.push_back(0);
     while (fgets(file_content2, 256, file2) != NULL)
     {
         file_content2[strcspn(file_content2, "\n")] = 0;
         badmcevi_list2.push_back(atoi(file_content2));
+    }
+
+    vector<int> badmcevi_list3;
+    FILE *file3 = fopen("./mcevi3_new_new.list", "r");
+    char file_content3[256];
+    badmcevi_list3.push_back(0);
+    while (fgets(file_content3, 256, file3) != NULL)
+    {
+        file_content3[strcspn(file_content3, "\n")] = 0;
+        badmcevi_list3.push_back(atoi(file_content3));
     }
 
     for (Long64_t mcEvi = 0; mcEvi < N; ++mcEvi) // event loop
@@ -388,6 +399,9 @@ int MatchGeantToPythia(string McFile, string PpFile, string OutFile = "test.root
             continue;
 
         if (binary_search(badmcevi_list2.begin(), badmcevi_list2.end(), mcEvi))
+            continue;
+
+        if (binary_search(badmcevi_list3.begin(), badmcevi_list3.end(), mcEvi))
             continue;
 
         McChain->GetEntry(mcEvi);
@@ -463,6 +477,7 @@ int MatchGeantToPythia(string McFile, string PpFile, string OutFile = "test.root
         }
         for (vector<RootResultStruct>::iterator ppit = ppresult.begin(); ppit != ppresult.end();)
         {
+            //cout << "mcevi, ppevi=" << mcEvi << ", " << ppevi << ", " << endl;
             MatchedResult.push_back(MatchedRootResultStruct(RootResultStruct(*dummyjet, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, mceventid, mcweight, -9, mcEvi, mcmult), *ppit));
             ++ppit;
         }
