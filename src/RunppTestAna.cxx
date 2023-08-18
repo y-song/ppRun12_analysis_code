@@ -118,6 +118,8 @@ int main(int argc, const char **argv)
   ResultTree->Branch("runid1", &runid1, "runid1/I");
   int eventid;
   ResultTree->Branch("eventid", &eventid, "eventid/I");
+  int eventid1;
+  ResultTree->Branch("eventid1", &eventid1, "eventid1/I");
   double weight = 1;
   ResultTree->Branch("weight", &weight, "weight/D");
   double refmult;
@@ -130,11 +132,11 @@ int main(int argc, const char **argv)
   ResultTree->Branch("highw", &highw, "highw/I");
   int mult;
   ResultTree->Branch("mult", &mult, "mult/I");
+  float pttot;
+  ResultTree->Branch("pttot", &pttot, "pttot/F");
 
   TClonesArray Jets("TStarJetVectorJet");
   ResultTree->Branch("Jets", &Jets);
-  double nef[1000];
-  ResultTree->Branch("nef", nef, "nef[njets]/D");
   double pt[1000];
   ResultTree->Branch("pt", pt, "pt[njets]/D");
   double m[1000];
@@ -173,6 +175,20 @@ int main(int argc, const char **argv)
   ResultTree->Branch("pt1", pt1, "pt1[njets]/D");
   double pt2[1000];
   ResultTree->Branch("pt2", pt2, "pt2[njets]/D");
+  double qlead[1000];
+  ResultTree->Branch("qlead", qlead, "qlead[njets]/D");
+  double qsublead[1000];
+  ResultTree->Branch("qsublead", qsublead, "qsublead[njets]/D");
+  double y1[1000];
+  ResultTree->Branch("y1", y1, "y1[njets]/D");
+  double y2[1000];
+  ResultTree->Branch("y2", y2, "y2[njets]/D");
+  double phi1[1000];
+  ResultTree->Branch("phi1", phi1, "phi1[njets]/D");
+  double phi2[1000];
+  ResultTree->Branch("phi2", phi2, "phi2[njets]/D");
+  double nef[1000];
+  ResultTree->Branch("nef", nef, "nef[njets]/D");
 
   // Helpers
   TStarJetVector *sv;
@@ -241,10 +257,12 @@ int main(int argc, const char **argv)
       runid = ppana->GetRunid();
       runid1 = ppana->GetRunid1();
       eventid = ppana->GetEventid();
+      eventid1 = ppana->GetEventid1();
       vz = ppana->GetVz();
       highw = ppana->CheckHighW();
       mult = ppana->GetEventMult();
-
+      pttot = ppana->GetPtTot();
+      
       vector<ResultStruct> Result = ppana->GetResult();
 
       njets = Result.size();
@@ -258,9 +276,7 @@ int main(int argc, const char **argv)
       {
 
         TStarJetVector sv = TStarJetVector(MakeTLorentzVector(gr.orig));
-        sv.SetCharge(gr.orig.user_info<JetAnalysisUserInfo>().GetQuarkCharge() / 3);
         new (Jets[ijet]) TStarJetVectorJet(sv);
-        nef[ijet] = gr.orig.user_info<JetAnalysisUserInfo>().GetNumber();
         pt[ijet] = gr.orig.perp();
         m[ijet] = gr.orig.m();
         q0[ijet] = gr.q0;
@@ -280,6 +296,13 @@ int main(int argc, const char **argv)
         pid2[ijet] = gr.pid2;
         pt1[ijet] = gr.pt1;
         pt2[ijet] = gr.pt2;
+        qlead[ijet] = gr.qlead;
+        qsublead[ijet] = gr.qsublead;
+        y1[ijet] = gr.y1;
+        y2[ijet] = gr.y2;
+        phi1[ijet] = gr.phi1;
+        phi2[ijet] = gr.phi2;
+        nef[ijet] = gr.nef;
 
         ijet++;
       }

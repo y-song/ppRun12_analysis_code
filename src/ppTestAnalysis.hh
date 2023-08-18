@@ -103,7 +103,14 @@ public:
   int pid2;
   double pt1;
   double pt2;
-  ResultStruct(PseudoJet orig, PseudoJet sd, int nch, int b, double dr, double q0, double q2, double epair, double z, int reject, int pid1, int pid2, double pt1, double pt2) : orig(orig),
+  double qlead;
+  double qsublead;
+  double y1;
+  double y2;
+  double phi1;
+  double phi2;
+  double nef;
+  ResultStruct(PseudoJet orig, PseudoJet sd, int nch, int b, double dr, double q0, double q2, double epair, double z, int reject, int pid1, int pid2, double pt1, double pt2, double qlead, double qsublead, double y1, double y2, double phi1, double phi2, double nef) : orig(orig),
                                                                                                                                                                                 sd(sd),
                                                                                                                                                                                 nch(nch),
                                                                                                                                                                                 b(b),
@@ -116,7 +123,14 @@ public:
                                                                                                                                                                                 pid1(pid1),
                                                                                                                                                                                 pid2(pid2),
                                                                                                                                                                                 pt1(pt1),
-                                                                                                                                                                                pt2(pt2){};
+                                                                                                                                                                                pt2(pt2),
+                                                                                                                                                                                qlead(qlead),
+                                                                                                                                                                                qsublead(qsublead),
+                                                                                                                                                                                y1(y1),
+                                                                                                                                                                                y2(y2),
+                                                                                                                                                                                phi1(phi1),
+                                                                                                                                                                                phi2(phi2),
+                                                                                                                                                                                nef(nef){};
 
   static bool origptgreater(ResultStruct const &a, ResultStruct const &b)
   {
@@ -188,8 +202,10 @@ private:
   // int PicoDebugLevel=1; /// Control DebugLevel in picoDSTs
 
   int eventid;
+  int eventid1;
   int runid;
   int runid1;
+  float pttot;
   double vz;
   int highw;
   int mult;
@@ -271,12 +287,16 @@ public:
   /// Get the runid of the current event (this id for geant events can match to bad run ids)
   inline double GetRunid1() { return runid1; };
 
+  inline double GetEventid1() { return eventid1; };
+  
   /// Get the runid of the current event
   inline double GetRunid() { return runid; };
 
   /// Get the eventid of the current event
   inline double GetEventid() { return eventid; };
 
+  inline float GetPtTot() { return pttot; };
+  
   /// Get the vz of the current event
   inline double GetVz() { return vz; };
 

@@ -452,11 +452,11 @@ EVENTRESULT ppTestAnalysis::RunEvent()
     header = pReader->GetEvent()->GetHeader();
 
     refmult = header->GetProperReferenceMultiplicity();
-    //eventid1 = header->GetEventId();
-    eventid1 = Events->GetLeaf("eventid")->GetValue();
+    eventid1 = header->GetEventId();
     runid1 = header->GetRunId();
     vz = header->GetPrimaryVertexZ();
-
+    pttot = 0;
+    
     // For GEANT: Need to devise a runid that's unique but also
     // reproducible to match Geant and GeantMc data.
     if (pars.UseGeantNumbering)
@@ -526,6 +526,7 @@ EVENTRESULT ppTestAnalysis::RunEvent()
       double sv_mass = pid->Mass();
       double E = TMath::Sqrt(sv->P() * sv->P() + sv_mass * sv_mass);
       sv->SetPxPyPzE(sv->Px(), sv->Py(), sv->Pz(), E);
+      pttot += sv->Pt();
     }
 
     //! setting pion mass for charged particles and zero mass for towers
@@ -538,8 +539,8 @@ EVENTRESULT ppTestAnalysis::RunEvent()
       else
         sv_mass = 0.0; //! towers get photon mass ~ 0
       double E = TMath::Sqrt(sv->P() * sv->P() + sv_mass * sv_mass);
-
       sv->SetPxPyPzE(sv->Px(), sv->Py(), sv->Pz(), E);
+      pttot += sv->Pt();
     }
 
     // TRACKS
