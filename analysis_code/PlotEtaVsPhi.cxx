@@ -160,7 +160,7 @@ int PlotEtaVsPhi(string McFile, string PpFile, string OutFile = "test.root")
 
     //! Output and histograms
     TH2D *h_eta_vs_phi = new TH2D("h", ";phi;eta", 100, -3.14, 3.14, 100, -0.6, 0.6);
-    gStyle->SetOptStat(11);
+    gStyle->SetOptStat(0);
 
     //! Loop over particle level
     int missed = 0;
@@ -190,6 +190,26 @@ int PlotEtaVsPhi(string McFile, string PpFile, string OutFile = "test.root")
         badmcevi_list2.push_back(atoi(file_content2));
     }
 
+    vector<int> badmcevi_list3;
+    FILE *file3 = fopen("./mcevi3_new.list", "r");
+    char file_content3[256];
+    badmcevi_list3.push_back(0);
+    while (fgets(file_content3, 256, file3) != NULL)
+    {
+        file_content3[strcspn(file_content3, "\n")] = 0;
+        badmcevi_list3.push_back(atoi(file_content3));
+    }
+
+    vector<int> badmcevi_list4;
+    FILE *file4 = fopen("./mcevi4_new.list", "r");
+    char file_content4[256];
+    badmcevi_list4.push_back(0);
+    while (fgets(file_content4, 256, file4) != NULL)
+    {
+        file_content4[strcspn(file_content4, "\n")] = 0;
+        badmcevi_list4.push_back(atoi(file_content4));
+    }
+
     for (Long64_t mcEvi = 0; mcEvi < N; ++mcEvi) // event loop
     {
         if (!(mcEvi % 500000))
@@ -201,25 +221,31 @@ int PlotEtaVsPhi(string McFile, string PpFile, string OutFile = "test.root")
         if (binary_search(badmcevi_list2.begin(), badmcevi_list2.end(), mcEvi))
             continue;
 
+        if (binary_search(badmcevi_list3.begin(), badmcevi_list3.end(), mcEvi))
+            continue;
+        
+        if (binary_search(badmcevi_list4.begin(), badmcevi_list4.end(), mcEvi))
+            continue;
+
         McChain->GetEntry(mcEvi);
 
         int ppevi = PpChain->GetEntryNumberWithIndex(mcrunid, mceventid);
-        PpChain->GetEntry(ppevi);
-        /*if (ppevi >= 0)
-        {
-            cout << ppevi << endl;
-        }*/
+        if (ppevi < 0)
+            continue;
 
+        PpChain->GetEntry(ppevi);
         for (int j = 0; j < ppnjets; ++j)
         {
             TStarJetVectorJet *ppjet = (TStarJetVectorJet *)PpJets->At(j);
-            h_eta_vs_phi->Fill(ppjet->Phi(), ppjet->Eta(), ppweight);
-            //cout << ppjet->Phi() << ", " << ppjet->Eta() << endl;
+            h_eta_vs_phi->Fill(ppjet->Phi(), ppjet->Eta());//, 212563/3284499);
+            //cout << j << ", " << ppjet->Phi() << ", " << ppjet->Eta() << endl;
         }
     }
 
-    TCanvas *c = new TCanvas("c", "c");
-    h_eta_vs_phi->DrawNormalized("colz");
-    c->SaveAs("plots/eta_vs_phi.png");
+    TCanvas *c = new TCanvas("c", "c", 1000, 600);
+    //c->SetLogz(1);
+    h_eta_vs_phi->GetZaxis()->SetRangeUser(0, 400);
+    h_eta_vs_phi->Draw("colz");
+    c->SaveAs("plots/test.png");
     return missed;
 }
